@@ -185,9 +185,15 @@ export async function applyAgentConfig(params: {
     );
 
   const isSisyphusEnabled = params.pluginConfig.sisyphus_agent?.disabled !== true;
+  const preserveNativeAgents =
+    params.pluginConfig.sisyphus_agent?.preserve_native_agents ?? false;
   const builderEnabled =
     params.pluginConfig.sisyphus_agent?.default_builder_enabled ?? false;
   const plannerEnabled = params.pluginConfig.sisyphus_agent?.planner_enabled ?? true;
+  const hephaestusEnabled =
+    params.pluginConfig.sisyphus_agent?.hephaestus_enabled ?? true;
+  const atlasEnabled = params.pluginConfig.sisyphus_agent?.atlas_enabled ?? true;
+  const juniorEnabled = params.pluginConfig.sisyphus_agent?.junior_enabled ?? true;
   const replacePlan = params.pluginConfig.sisyphus_agent?.replace_plan ?? true;
   const shouldDemotePlan = plannerEnabled && replacePlan;
   const configuredDefaultAgent = getConfiguredDefaultAgent(params.config);
@@ -208,7 +214,7 @@ export async function applyAgentConfig(params: {
       sisyphus: builtinAgents.sisyphus,
     };
 
-    if (builtinAgents.hephaestus) {
+    if (hephaestusEnabled && builtinAgents.hephaestus) {
       agentConfig["hephaestus"] = builtinAgents.hephaestus;
     }
 
@@ -226,15 +232,17 @@ export async function applyAgentConfig(params: {
       });
     }
 
-    if (builtinAgents.atlas) {
+    if (atlasEnabled && builtinAgents.atlas) {
       agentConfig["atlas"] = builtinAgents.atlas;
     }
 
-    agentConfig["sisyphus-junior"] = createSisyphusJuniorAgentWithOverrides(
-      params.pluginConfig.agents?.["sisyphus-junior"],
-      (builtinAgents.atlas as { model?: string } | undefined)?.model,
-      useTaskSystem,
-    );
+    if (juniorEnabled) {
+      agentConfig["sisyphus-junior"] = createSisyphusJuniorAgentWithOverrides(
+        params.pluginConfig.agents?.["sisyphus-junior"],
+        (builtinAgents.atlas as { model?: string } | undefined)?.model,
+        useTaskSystem,
+      );
+    }
 
     if (builderEnabled) {
       const { name: _buildName, ...buildConfigWithoutName } =
@@ -254,8 +262,8 @@ export async function applyAgentConfig(params: {
       ? Object.fromEntries(
           Object.entries(configAgent)
             .filter(([key]) => {
-              if (key === "build") return false;
-              if (key === "plan" && shouldDemotePlan) return false;
+              if (key === "build" && !preserveNativeAgents) return false;
+              if (key === "plan" && shouldDemotePlan && !preserveNativeAgents) return false;
               if (key in builtinAgents) return false;
               return true;
             })
@@ -328,8 +336,10 @@ export async function applyAgentConfig(params: {
       ...filterDisabledAgents(filteredAgentDefinitionAgents),
       ...filterDisabledAgents(filteredOpencodeConfigAgents),
       ...filteredConfigAgents,
-      build: { ...migratedBuild, mode: "subagent", hidden: true },
-      ...(planDemoteConfig ? { plan: planDemoteConfig } : {}),
+      ...(!preserveNativeAgents
+        ? { build: { ...migratedBuild, mode: "subagent", hidden: true } }
+        : {}),
+      ...(planDemoteConfig && !preserveNativeAgents ? { plan: planDemoteConfig } : {}),
     };
   } else {
     const protectedBuiltinAgentNames = createProtectedAgentNameSet(

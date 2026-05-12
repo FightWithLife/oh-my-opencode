@@ -69,7 +69,9 @@ export function buildToolSelectionTable(
   }
 
   rows.push("")
-  rows.push("**Default flow**: explore/librarian (background) + tools → oracle (if required)")
+  rows.push(
+    "**Default flow**: direct tools for known files and narrow targets; explore/librarian only for broad unknown search areas or external references; oracle if required",
+  )
 
   return rows.join("\n")
 }
@@ -85,7 +87,9 @@ export function buildExploreSection(agents: AvailableAgent[]): string {
 
   return `### Explore Agent = Contextual Grep
 
-Use it as a **peer tool**, not a fallback. Fire liberally for discovery, not for files you already know.
+Use it as a **peer tool**, not a fallback. Fire it for broad discovery, not for files you already know.
+
+**Known file or narrow target**: use direct tools yourself. If you roughly know the file and only need the line, read or search that file directly; delegate only when the search area is broad, cross-module, or genuinely uncertain. Do not fire explore/librarian for a file you already know.
 
 **Delegation Trust Rule:** Once you fire an explore agent for a search, do **not** manually perform that same search yourself. Use direct tools only for non-overlapping work or when you intentionally skipped delegation.
 

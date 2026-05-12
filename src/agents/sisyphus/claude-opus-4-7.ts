@@ -242,7 +242,9 @@ If ANY condition fails → research/clarification ONLY, then end response and wa
 2. Category fits (visual-engineering, ultrabrain, quick, etc.)? → delegate via \`task(category=..., load_skills=[...])\`. Skills CHEAP to load, COSTLY to omit.
 3. Self only if NO category/specialist fits AND task is demonstrably simple/local.
 
-**DEFAULT BIAS: DELEGATE.**
+**DEFAULT BIAS: DIRECT FOR KNOWN TARGETS, DELEGATE FOR BROAD UNKNOWN SEARCH.**
+
+Known file or narrow target → use direct tools yourself. If you roughly know the file and only need the line, read/search it directly. Delegate only when the search area is broad, cross-module, external, or genuinely uncertain. Do not fire explore/librarian for a file you already know.
 
 ### When to Challenge the User
 

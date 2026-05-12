@@ -1,0 +1,35 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
+
+  "sisyphus_agent": {
+    "preserve_native_agents": true,
+    "default_builder_enabled": false,
+    "planner_enabled": false,
+    "replace_plan": false,
+    "hephaestus_enabled": false,
+    "atlas_enabled": false,
+    "junior_enabled": false
+  },
+
+  "disabled_commands": [
+    "init-deep",
+    "refactor",
+    "remove-ai-slops",
+    "hyperplan"
+  ],
+
+  "agents": {
+    "sisyphus": {
+      // Keep the built-in Sisyphus prompt, but override its routing bias.
+      "prompt_append": "## Lightweight Routing Override\n\nPrefer the smallest sufficient workflow.\n\n- If you roughly know the file or module and only need the exact line or local context, use direct tools yourself: read, grep, lsp, ast-grep. Do not delegate first.\n- If the target is a single file, a narrow symbol, a known config, or a local error around a known stack trace, stay local and read/search directly.\n- Delegate to explore only when you do not know which file/module owns the behavior, the search area spans multiple modules, or several independent search angles are useful.\n- Delegate to librarian only when current external docs, web references, OSS examples, or API behavior outside the repo materially affect the answer.\n- When you delegate, make each task narrow and non-overlapping. Continue only with work that does not duplicate the delegated search.\n- Do not create a full plan or broad exploration phase for trivial or explicit tasks. Use todos/tasks only when the work has multiple real steps.\n\nRouting rule: known local target -> direct tools; unknown broad/internal search -> explore; external/current reference search -> librarian; architecture/risky tradeoff -> oracle."
+    },
+
+    "explore": {
+      "model": "github-copilot/grok-code-fast-1"
+    },
+
+    "librarian": {
+      "model": "google/gemini-3-flash"
+    }
+  }
+}
